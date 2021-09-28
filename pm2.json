@@ -1,0 +1,27 @@
+{
+"apps":[
+    {
+        "name": "kotra-node-api",
+        "script":"./bin/www",
+        "watch": true,
+        "interpreter": "node",      // interpreter absolute path (default to node)
+		    //"cwd": "/",               // the directory from which your app will be launched
+        //"node_args": "--inspect=0.0.0.0:3001 --inspect-brk",
+        //"max_memory_restart": "500M",
+        "instances": 0,
+        "exec_mode": "cluster",      // cluster or fork
+        "wait_ready": true,
+        "listen_timeout": 5000,
+        //"interpreter_args": "",   // option to pass to the interprete
+        //"node_args": "",          // alias to interpreter_args
+        //"args": "",               // string containing all arguments passed via CLI to script
+        //"env_{ENV_NAME}": {}      // inject when doing pm2 restart with --env <env_name> option
+        //"out_file": "/dev/null",  // Disable logging
+        //"error_file": "/dev/null",// Disable logging
+        "env": {
+            "DEBUG": "express:*",
+            "NODE_ENV": "production"   // "development" or "production"
+        }
+    }
+]
+}

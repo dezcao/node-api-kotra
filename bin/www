@@ -1,0 +1,95 @@
+#!/usr/bin/env node
+/**
+  Copyright (c) 2019 asdaisy
+  Licensed under the Apache License, Version 2.0 (the “License”)
+  You may not use this file except in compliance with the License.
+  You may obtain a copy of the License at asdaisy@hanmail.net
+  */
+const config = require('../conf/config');
+const app = require('../app');
+const log = require('../lib/util').log("SERVER");
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
+const https = require('https');
+
+/**
+ * Get port from environment and store in Express.
+ */
+const port = normalizePort(process.env.PORT || config.server_port);
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+let server = null;
+if (port == 443 ) {
+  let options = {
+    key: fs.readFileSync(path.join(__dirname,'../ssl/KeyFile_Wildcard.petme.kr_apache.key')),
+    cert: fs.readFileSync(path.join(__dirname,'../ssl/File_Wildcard.petme.kr_apache.crt')),
+    ca: fs.readFileSync(path.join(__dirname,'../ssl/CA_GLOBALSIGN_ROOT_CA.crt')),
+  };
+  server = https.createServer(options, app);
+} else {
+  server = http.createServer(app);
+}
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+function normalizePort(val) {
+  let port = parseInt(val, 10);
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+  let bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+function onListening() {
+  let addr = server.address();
+  let bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+  log('Listening on (%s), env: (%s)', bind, process.env.NODE_ENV);
+  process.send('ready');
+}
+
+
+
+
